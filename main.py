@@ -40,7 +40,6 @@ def index(url_query: URLQuery):
     これには、URLを受け取り、回答を返すエンドポイントが含まれます。
     """
     url_path = url_query.url_path
-    print("URL:", url_path)
     answer = prompt.get_answer_by_url(url_path)
     return answer
 
@@ -59,9 +58,6 @@ def index(keyword: str):
     それをBeautiful Soupで解析、要約まで行うエンドポイント
     """
     url = search_bot.get_search_url_by_keyword(keyword)
-    print("URL:", url)
     text_content = parser.fetch_content_from_url(url)
-    #print("Content:", text_content)
     search_results = prompt.summarize_content(text_content)
-    print("Summary:", search_results)
     return {"keyword": keyword, "url": url, "summary": search_results}
