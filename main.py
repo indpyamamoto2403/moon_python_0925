@@ -4,7 +4,7 @@ import mysql.connector
 
 def fetch_m_prompt_values():
     connection = mysql.connector.connect(
-        host="moon-db",
+        host="moon-dba",
         user="indp",
         password="secret",
         database="moon"
