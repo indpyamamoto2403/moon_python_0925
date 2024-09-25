@@ -1,0 +1,67 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from get_prompt import GetPrompt
+from search_page import SearchPage
+from html_parser import HTMLParser
+from env import * # 環境変数を読み込む
+from pydantic import BaseModel
+
+class URLQuery(BaseModel):
+    url_path: str
+
+app = FastAPI()
+# Define the CORS configuration to allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
+prompt = GetPrompt(api_key = API_KEY, endpoint = ENDPOINT)
+search_bot = SearchPage(subscription_key = SUBSCRIPTION_KEY, search_endpoint = SEARCH_ENDPOINT)
+parser = HTMLParser()
+
+@app.get("/")
+def read_root():
+    return {"Hello": "AI + FastAPI World"}
+
+@app.get("/question/{question}")
+def index(question: str):
+    """
+    これには、質問を受け取り、回答を返すエンドポイントが含まれます。
+    """
+    answer = prompt._question_answer(question)
+    return {"question": question, "answer": answer}
+
+@app.post("/url_query")
+def index(url_query: URLQuery):
+    """
+    これには、URLを受け取り、回答を返すエンドポイントが含まれます。
+    """
+    url_path = url_query.url_path
+    print("URL:", url_path)
+    answer = prompt.get_answer_by_url(url_path)
+    return answer
+
+@app.get("/keyword_query/{keyword}")
+def index(keyword: str):
+    """
+    これにはキーワードを受け取り、回答を返すエンドポイントが含まれます。
+    """
+    answer = prompt.get_answer_by_keyword(keyword)
+    return answer
+
+@app.get("/search/{keyword}")
+def index(keyword: str):
+    """
+    キーワードからsearch API経由で上位ヒットしたURLを取得し、
+    それをBeautiful Soupで解析、要約まで行うエンドポイント
+    """
+    url = search_bot.get_search_url_by_keyword(keyword)
+    print("URL:", url)
+    text_content = parser.fetch_content_from_url(url)
+    #print("Content:", text_content)
+    search_results = prompt.summarize_content(text_content)
+    print("Summary:", search_results)
+    return {"keyword": keyword, "url": url, "summary": search_results}
