@@ -1,0 +1,2 @@
+# moon_python_0925
+コンテナ内のscr/pythonをルートディレクトリとする
