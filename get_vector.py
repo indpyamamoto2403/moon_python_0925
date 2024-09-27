@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # 埋め込みの取得
     content_embedding = generate_embedding("私の名前はブラックコーヒーです")
     query_embedding = generate_embedding("あなたの名前はブラックコーヒーですか？")
-    no_correlation_embedding = generate_embedding("今日はいい天気ですね")
+    no_correlation_embedding = generate_embedding("今日はいい天気ですね!")
 
     # コサイン類似度を計算
     similarity_1 = cosine_similarity(content_embedding, query_embedding)
