@@ -4,7 +4,7 @@ from mysql.connector import Error
 def test_mysql_connection():
     try:
         connection = mysql.connector.connect(
-            host="moon-dba",
+            host="moon-db",
             user="indp",
             password="secret",
             database="moon"
