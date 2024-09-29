@@ -1,25 +1,26 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from get_prompt import GetPrompt
 from search_page import SearchPage
 from html_parser import HTMLParser
 from env import * # 環境変数を読み込む
 from pydantic import BaseModel
+from initialize_app import initialize_app
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 class URLQuery(BaseModel):
     url_path: str
 
 app = FastAPI()
-# Define the CORS configuration to allow all origins
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers
-)
-prompt = GetPrompt(api_key = API_KEY, endpoint = ENDPOINT)
-search_bot = SearchPage(subscription_key = SUBSCRIPTION_KEY, search_endpoint = SEARCH_ENDPOINT)
+initialize_app(app)
+
+print(os.getenv("API_KEY"))
+print(os.getenv("ENDPOINT"))
+
+
+prompt = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
+search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
 
 @app.get("/")
