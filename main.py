@@ -4,7 +4,7 @@ from search_page import SearchPage
 from html_parser import HTMLParser
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-
+import requests
 from dotenv import load_dotenv
 import os
 load_dotenv()
@@ -66,6 +66,11 @@ def index(keyword: str):
     search_results = prompt.summarize_content(text_content)
     return {"keyword": keyword, "url": url, "summary": search_results}
 
+@app.get("/search_url/{keyword}")
+def index(keyword):
+    url = search_bot.get_search_url_by_keyword(keyword)
+    return url
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)
