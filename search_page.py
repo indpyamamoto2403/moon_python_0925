@@ -19,16 +19,19 @@ class SearchPage:
         """
         与えられたキーワードを元に、トップURLを返却する
         """
-        response = requests.get(self.endpoint, headers=self.headers, params=self._get_params(keyword))
-        response.raise_for_status()
-        search_results = response.json()
-        # Extract the first URL from the search results
-        if "webPages" in search_results and "value" in search_results["webPages"]:
-            # Assuming you want the first result's URL
-            top_result_url = search_results["webPages"]["value"][0]["url"]
-            return top_result_url
-        else:
-            return "No results found"
+        try:
+            response = requests.get(self.endpoint, headers=self.headers, params=self._get_params(keyword))
+            response.raise_for_status()
+            search_results = response.json()
+            # Extract the first URL from the search results
+            if "webPages" in search_results and "value" in search_results["webPages"]:
+                # Assuming you want the first result's URL
+                top_result_url = search_results["webPages"]["value"][0]["url"]
+                return top_result_url
+            else:
+                return "No results found"
+        except Exception as e:
+            return "InternalServerError: " + str(e)
     
 #テスト
 if __name__ == "__main__":
