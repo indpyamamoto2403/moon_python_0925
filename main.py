@@ -66,3 +66,7 @@ def read_root():
 #     text_content = parser.fetch_content_from_url(url)
 #     search_results = prompt.summarize_content(text_content)
 #     return {"keyword": keyword, "url": url, "summary": search_results}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
