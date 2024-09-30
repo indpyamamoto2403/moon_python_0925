@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from get_prompt import GetPrompt
 from search_page import SearchPage
 from html_parser import HTMLParser
-from env import * # 環境変数を読み込む
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
