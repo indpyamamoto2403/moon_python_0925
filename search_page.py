@@ -1,4 +1,5 @@
 import requests
+import traceback
 
 class SearchPage:
     def __init__(self, subscription_key: str, search_endpoint: str):
@@ -31,7 +32,8 @@ class SearchPage:
             else:
                 return "No results found"
         except Exception as e:
-            return "InternalServerError: " + str(e)
+            traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+            return f"InternalServerError: {str(e)}\nTraceback: {traceback_str}"
     
 #テスト
 if __name__ == "__main__":
