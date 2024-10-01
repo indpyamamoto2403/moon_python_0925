@@ -26,6 +26,10 @@ prompt = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOIN
 search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
 
+print(os.getenv("API_KEY"))
+print(os.getenv("ENDPOINT"))
+print(os.getenv("SUBSCRIPTION_KEY"))
+print(os.getenv("SEARCH_ENDPOINT"))
 @app.get("/")
 def read_root():
     return {"Hello": "AI + FastAPI World"}
