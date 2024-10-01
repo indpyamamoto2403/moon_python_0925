@@ -14,7 +14,11 @@ class SearchPage:
         '''
         search APIに送信するパラメーターを取得する
         '''
-        return {"q": keyword}
+        return {
+            "q": keyword,
+            "textDecorations": True,
+            "textFormat": "HTML",
+        }
     
     def get_search_url_by_keyword(self, keyword: str):
         """
