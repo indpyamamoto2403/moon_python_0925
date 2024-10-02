@@ -25,11 +25,7 @@ app.add_middleware(
 prompt = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
 search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
-
-print(os.getenv("API_KEY"))
-print(os.getenv("ENDPOINT"))
-print(os.getenv("SUBSCRIPTION_KEY"))
-print(os.getenv("SEARCH_ENDPOINT"))
+print("API_KEY:")
 @app.get("/")
 def read_root():
     return {"Hello": "AI + FastAPI World"}
@@ -41,6 +37,16 @@ def index(question: str):
     """
     answer = prompt._question_answer(question)
     return {"question": question, "answer": answer}
+
+
+@app.post("/url_content")
+def index(url_query: URLQuery):
+    """
+    これには、URLを受け取り、URL本文を返すエンドポイントが含まれます。
+    """
+    url_path = url_query.url_path
+    text_content = parser.fetch_content_from_url(url_path)
+    return text_content
 
 @app.post("/url_query")
 def index(url_query: URLQuery):

@@ -52,7 +52,11 @@
         <input type="text" id="question-input" required>
         <button type="submit">送信</button>
     </form>
-
+    <form id="url-content-form" method="post"></form>
+        <label for="url-content">URL→原文</label>
+        <input type="text" id="url-content" required>
+        <button type="submit">送信</button>
+    </form>
     <form id="url-query-form" method="post">
         <label for="url-input">URL→要約文抽出</label>
         <input type="text" id="url-input" required>
@@ -112,6 +116,12 @@
             e.preventDefault();
             const question = document.getElementById('question-input').value;
             await fetchApiResponse(`/question/${encodeURIComponent(question)}`);
+        });
+
+        document.getElementById('url-content-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const urlPath = document.getElementById('url-content').value;
+            await fetchApiResponse(`/url_content`, { url_path: urlPath }, 'POST');  // Use POST method with JSON body
         });
 
         document.getElementById('url-query-form').addEventListener('submit', async (e) => {
