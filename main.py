@@ -81,6 +81,11 @@ def index(keyword):
     url = search_bot.get_search_url_by_keyword(keyword)
     return url
 
+@app.get("/vector_search/{keyword}")
+def index(keyword):
+    answer = "ここにベクトル検索の結果が入ります。" * 30
+    return answer
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
