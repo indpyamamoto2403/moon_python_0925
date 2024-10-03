@@ -93,7 +93,7 @@ def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Q
         combined_keywords = f"{keyword1 or ''} {keyword2 or ''} {keyword3 or ''} ニュース".strip()
         if not combined_keywords:
             return {"error": "少なくとも1つのキーワードを指定してください。"}
-        urls = search_bot.get_search_urls_by_keyword(combined_keywords)
+        urls = search_bot.get_search_urls_by_keyword(combined_keywords, page)
         
         contents = []
         for url in urls:
