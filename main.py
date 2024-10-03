@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Path
 from get_prompt import GetPrompt
 from search_page import SearchPage
 from html_parser import HTMLParser
@@ -85,6 +85,25 @@ def index(keyword):
 def index(keyword):
     answer = "ここにベクトル検索の結果が入ります。" * 30
     return answer
+
+from fastapi import FastAPI, Query
+
+app = FastAPI()
+
+@app.get("/news/")
+def index(keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
+    try:
+        combined_keywords = f"{keyword1 or ''} {keyword2 or ''} {keyword3 or ''} ニュース".strip()
+        if not combined_keywords:
+            return {"error": "少なくとも1つのキーワードを指定してください。"}
+        url = search_bot.get_search_url_by_keyword(combined_keywords)
+        text_content = parser.fetch_content_from_url(url)
+        search_results = prompt.summarize_news(text_content)
+        return {"keywords": [keyword1, keyword2, keyword3], "url": url, "news": search_results}
+    except Exception as e:
+        return {"API error": str(e)}
+
+
 
 if __name__ == "__main__":
     import uvicorn

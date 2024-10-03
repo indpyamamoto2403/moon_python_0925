@@ -85,3 +85,13 @@ class GetPrompt:
         answer = self._question_answer(prompt)
         
         return {"prompt": prompt, "summary": answer}
+
+    def summarize_news(self, content:str) -> str:
+        '''
+        テキストを受取、要約を返す
+        '''
+        prefix = "次の文章のニュース記事を要約してください。"
+        prompt = prefix + content
+        answer = self._question_answer(prompt)
+        
+        return {"prefix": prefix, "summary": answer}
