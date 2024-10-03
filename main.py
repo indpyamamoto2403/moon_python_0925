@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Query
 from get_prompt import GetPrompt
 from search_page import SearchPage
 from html_parser import HTMLParser
@@ -85,10 +85,6 @@ def index(keyword):
 def index(keyword):
     answer = "ここにベクトル検索の結果が入ります。" * 30
     return answer
-
-from fastapi import FastAPI, Query
-
-app = FastAPI()
 
 @app.get("/news/")
 def index(keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
