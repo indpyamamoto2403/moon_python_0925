@@ -97,9 +97,13 @@ def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Q
         
         contents = []
         for url in urls:
+            content = []
             text_content = parser.fetch_content_from_url(url)
             search_results = prompt.summarize_news(text_content)
-            contents.append(search_results)
+            content.append(url)
+            content.append(search_results)
+            contents.append(content)
+
             
         return {"keywords": [keyword1, keyword2, keyword3], "url": urls, "news": contents}
     except Exception as e:
