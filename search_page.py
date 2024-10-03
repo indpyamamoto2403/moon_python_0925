@@ -38,7 +38,30 @@ class SearchPage:
         except Exception as e:
             traceback_str = ''.join(traceback.format_tb(e.__traceback__))
             return f"InternalServerError: {str(e)}\nTraceback: {traceback_str}"
-    
+
+    def get_search_urls_by_keyword(self, keyword: str, url_num=3):
+        """
+        与えられたキーワードを元に、トップURLを返却する
+        """
+        try:
+            response = requests.get(self.endpoint, headers=self.headers, params=self._get_params(keyword))
+            response.raise_for_status()
+            search_results = response.json()
+            # Extract the first URL from the search results
+            if "webPages" in search_results and "value" in search_results["webPages"]:
+                # Assuming you want the first result's URL
+                top_result_url1 = search_results["webPages"]["value"][0]["url"]
+                top_result_url2 = search_results["webPages"]["value"][1]["url"]
+                top_result_url3 = search_results["webPages"]["value"][2]["url"]
+                
+                top_result_urls = [top_result_url1, top_result_url2, top_result_url3]
+                print(top_result_urls)
+                return top_result_urls
+            else:
+                return "No results found"
+        except Exception as e:
+            traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+            return f"InternalServerError: {str(e)}\nTraceback: {traceback_str}"
 #テスト
 if __name__ == "__main__":
     from env import * # 環境変数を読み込む

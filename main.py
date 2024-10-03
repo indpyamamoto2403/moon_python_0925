@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Path
 from get_prompt import GetPrompt
 from search_page import SearchPage
 from html_parser import HTMLParser
@@ -26,9 +26,10 @@ prompt = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOIN
 search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
 print("API_KEY:")
+
 @app.get("/")
 def read_root():
-    return {"Hello": "AI + FastAPI World"}
+    return {"Hello": "AI FastAPI World"}
 
 @app.get("/question/{question}")
 def index(question: str):
@@ -86,16 +87,21 @@ def index(keyword):
     answer = "ここにベクトル検索の結果が入ります。" * 30
     return answer
 
-@app.get("/news/")
-def index(keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
+@app.get("/news")
+def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
     try:
         combined_keywords = f"{keyword1 or ''} {keyword2 or ''} {keyword3 or ''} ニュース".strip()
         if not combined_keywords:
             return {"error": "少なくとも1つのキーワードを指定してください。"}
-        url = search_bot.get_search_url_by_keyword(combined_keywords)
-        text_content = parser.fetch_content_from_url(url)
-        search_results = prompt.summarize_news(text_content)
-        return {"keywords": [keyword1, keyword2, keyword3], "url": url, "news": search_results}
+        urls = search_bot.get_search_urls_by_keyword(combined_keywords)
+        
+        contents = []
+        for url in urls:
+            text_content = parser.fetch_content_from_url(url)
+            search_results = prompt.summarize_news(text_content)
+            contents.append(search_results)
+            
+        return {"keywords": [keyword1, keyword2, keyword3], "url": urls, "news": contents}
     except Exception as e:
         return {"API error": str(e)}
 
