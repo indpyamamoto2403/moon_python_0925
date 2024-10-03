@@ -50,12 +50,9 @@ class SearchPage:
             # Extract the first URL from the search results
             if "webPages" in search_results and "value" in search_results["webPages"]:
                 # Assuming you want the first result's URL
-                top_result_url1 = search_results["webPages"]["value"][0]["url"]
-                top_result_url2 = search_results["webPages"]["value"][1]["url"]
-                top_result_url3 = search_results["webPages"]["value"][2]["url"]
-                
-                top_result_urls = [top_result_url1, top_result_url2, top_result_url3]
-                print(top_result_urls)
+                top_result_urls = []
+                for i in range(url_num):
+                    top_result_urls.append(search_results["webPages"]["value"][i]["url"])
                 return top_result_urls
             else:
                 return "No results found"
