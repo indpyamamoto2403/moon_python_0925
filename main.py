@@ -97,22 +97,22 @@ def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Q
         if not combined_keywords:
             return {"error": "少なくとも1つのキーワードを指定してください。"}
         urls = search_bot.get_search_urls_by_keyword(combined_keywords, page)
-        
         contents = []
+        rank = 1
         for url in urls:
-            content = []
+            content = {}
             text_content = parser.fetch_content_from_url(url)
             search_results = prompt.summarize_news(text_content)
-            content.append(url)
-            content.append(search_results)
+            # 辞書に各項目を追加
+            content['rank'] = rank
+            content['url'] = url
+            content['text_content'] = text_content
+            content['search_results'] = search_results    
+            rank += 1
             contents.append(content)
-
-            
         return {"keywords": [keyword1, keyword2, keyword3], "url": urls, "news": contents}
     except Exception as e:
-        return {"API error": str(e)}
-
-
+            return {"API error": str(e)}
 
 if __name__ == "__main__":
     import uvicorn
