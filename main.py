@@ -1,3 +1,5 @@
+import os
+from SearchResult import SerachResult
 from fastapi import FastAPI, Query, Path
 from get_prompt import GetPrompt
 from search_page import SearchPage
@@ -6,9 +8,8 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from dotenv import load_dotenv
-import os
-load_dotenv()
 
+load_dotenv()
 class URLQuery(BaseModel):
     url_path: str
 
@@ -22,10 +23,12 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+search_result = SerachResult(url = "https://www.google.com", originText = "originText", summary = "summary")
+print(search_result.get_url)
+
 prompt = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
 search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
-print("API_KEY:")
 
 @app.get("/")
 def read_root():
