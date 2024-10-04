@@ -1,5 +1,4 @@
 import os
-from SearchResult import SerachResult
 from fastapi import FastAPI, Query, Path
 from get_prompt import GetPrompt
 from search_page import SearchPage
