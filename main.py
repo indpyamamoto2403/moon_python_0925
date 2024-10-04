@@ -60,7 +60,7 @@ def index(url_query: URLQuery):
 @app.get("/keyword_query/{keyword}")
 def index(keyword: str):
     """
-    これにはキーワードを受け取り、回答を返すエンドポイントが含まれます
+    これにはキーワードを受け取り、回答を返すエンドポイントが含まれます.
     """
     answer = prompt.get_answer_by_keyword(keyword)
     return answer
