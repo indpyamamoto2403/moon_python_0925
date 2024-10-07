@@ -3,17 +3,14 @@ from fastapi import FastAPI, Query, Path
 from get_prompt import GetPrompt
 from search_page import SearchPage
 from html_parser import HTMLParser
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from dotenv import load_dotenv
-
+import uvicorn
+from URLQuery import URLQuery
+from utils import TextSplitter
 load_dotenv()
-class URLQuery(BaseModel):
-    url_path: str
-
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins
@@ -26,6 +23,10 @@ prompt = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOIN
 search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
 
+split_chunk_size = 1000
+split_overlap = 20
+
+
 @app.get("/")
 def read_root():
     return {"Hello": "AI FastAPI World"}
@@ -36,8 +37,20 @@ def index(question: str):
     これには、質問を受け取り、回答を返すエンドポイントが含まれます。
     """
     answer = prompt._question_answer(question)
-    return {"question": question, "answer": answer}
+    return (question, answer)
 
+@app.get("/question_answer_by_split")
+def index(prompt: str, content: str):
+    '''
+    クエリ文字列としてプロンプトを受取、文章に分割し、それぞれに対してプロンプトを実行し、統合プロンプトを返す
+    '''
+    result = ""
+    
+    if content > split_chunk_size:
+        split_texts = TextSplitter.split(content, chunk_size=split_chunk_size, chunk_overlap=split_overlap)
+    else:
+        split_texts = content        
+    return split_texts
 
 @app.post("/url_content")
 def index(url_query: URLQuery):
@@ -83,7 +96,7 @@ def index(keyword):
 
 @app.get("/vector_search/{keyword}")
 def index(keyword):
-    answer = "ここにベクトル検索の結果が入ります。" * 30
+    answer = "ここにベクトル検索の結果が入ります。"
     return answer
 
 @app.get("/news")
@@ -111,5 +124,4 @@ def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Q
             return {"API error": str(e)}
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
