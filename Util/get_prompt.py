@@ -37,8 +37,6 @@ class GetPrompt:
         "max_tokens": 2000
         }
 
-
-        # Send request
         try:
             response = requests.post(self.endpoint, headers=headers, json=payload)
             response.raise_for_status()  # Will raise an HTTPError if the HTTP request returned an unsuccessful status code
