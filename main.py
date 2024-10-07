@@ -8,7 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests
 from dotenv import load_dotenv
 import uvicorn
+
 from URLQuery import URLQuery
+from dataset import SummarizationDataset, Chunk
+
+
 load_dotenv()
 app = FastAPI()
 app.add_middleware(
@@ -23,8 +27,8 @@ prompt = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOIN
 search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
 
-split_chunk_size = 1000
-split_overlap = 20
+split_chunk_size = 100
+split_overlap = 0
 
 
 @app.get("/")
@@ -40,21 +44,27 @@ def index(question: str):
     return (question, answer)
 
 @app.get("/question_answer_by_split")
-def index(prompt: str, content: str):
+def index(arg_prompt: str, content: str):
     '''
     クエリ文字列としてプロンプトを受取、文章に分割し、それぞれに対してプロンプトを実行し、統合プロンプトを返す
     '''
-    result = ""
-    
-    if content > split_chunk_size:
+    if len(content) > split_chunk_size:
+        dataset = SummarizationDataset(prompt=arg_prompt, origin_text=content)
         split_texts = TextSplitter.split(content, 
                                          chunk_size=split_chunk_size, 
                                          chunk_overlap=split_overlap)
-        for chunk in split_texts['chunks']:
-            result += prompt._question_answer(prompt + chunk['text'])
+        for index, chunk in enumerate(split_texts['chunks']):
+            summary = prompt._question_answer(arg_prompt + chunk['text'])
+            dataset.ChunkSet.append(Chunk(index=index, chunk=chunk['text'], summary=summary))
+        
+        #統合コンテンツをセット
+        dataset.set_integration_content()
+        dataset.integration_summary = prompt._question_answer(arg_prompt + dataset.integration_content)
     else:
-        result += prompt._question_answer(prompt + content)        
-    return result
+        #分割する必要がない場合は、文字列が返る
+         dataset = prompt._question_answer(arg_prompt + content)
+                
+    return dataset
 
 @app.post("/url_content")
 def index(url_query: URLQuery):
