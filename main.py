@@ -3,12 +3,12 @@ from fastapi import FastAPI, Query, Path
 from get_prompt import GetPrompt
 from search_page import SearchPage
 from html_parser import HTMLParser
+from utils import TextSplitter
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from dotenv import load_dotenv
 import uvicorn
 from URLQuery import URLQuery
-from utils import TextSplitter
 load_dotenv()
 app = FastAPI()
 app.add_middleware(
@@ -47,10 +47,14 @@ def index(prompt: str, content: str):
     result = ""
     
     if content > split_chunk_size:
-        split_texts = TextSplitter.split(content, chunk_size=split_chunk_size, chunk_overlap=split_overlap)
+        split_texts = TextSplitter.split(content, 
+                                         chunk_size=split_chunk_size, 
+                                         chunk_overlap=split_overlap)
+        for chunk in split_texts['chunks']:
+            result += prompt._question_answer(prompt + chunk['text'])
     else:
-        split_texts = content        
-    return split_texts
+        result += prompt._question_answer(prompt + content)        
+    return result
 
 @app.post("/url_content")
 def index(url_query: URLQuery):
