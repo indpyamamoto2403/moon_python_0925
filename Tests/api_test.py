@@ -30,5 +30,5 @@ def test_search_url_endpoint():
 #長い文章の処理のテストケース
 def test_long_text_endpoint():
     test_text = "ここに長いテキストを挿入します。非常に長いテキストを想定しています。"
-    response = client.get(f"/question_answer_by_split/?prompt=事業内容を要約してください。&content={test_text}")
+    response = client.get(f"/question_answer_by_split?arg_prompt=事業内容を要約してください。&content={test_text}")
     assert response.status_code == 200
