@@ -4,7 +4,7 @@ classDiagram
         +str keyword2
         +str keyword3
         +str const_search_word
-        +str conbined_keyword
+        +str combined_keyword
     }
     class EntireDataset {
         +InputDataset input_dataset
@@ -27,7 +27,7 @@ classDiagram
     }
     class SplitInfo {
         +int split_chunk_size
-        +int split_oqverlap
+        +int split_overlap
     }
     class Chunk {
         +int index
