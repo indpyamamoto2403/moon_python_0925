@@ -22,5 +22,5 @@ classDiagram
         set_integration_content()
     }
     
-    SummarizationDataset --> Chunk : "List of"
+    SummarizationDataset --> Chunk : "Listof"
     SummarizationDataset --> SplitInfo : "1"
