@@ -35,8 +35,6 @@ classDiagram
         str summary
     }
 
-
-    %% 関係性を定義
     EntireDataset --> InputDataset : contains
     EntireDataset --> SearchResult : contains
     SearchResult --> SummarizationDataset : contains
