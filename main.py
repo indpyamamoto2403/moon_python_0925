@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 import uvicorn
 
 from URLQuery import URLQuery
-from dataset import SummarizationDataset, Chunk
+from dataset import SummarizationDataset, Chunk, SplitInfo
 
 
 load_dotenv()
@@ -27,7 +27,7 @@ prompt = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOIN
 search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
 
-split_chunk_size = 100
+split_chunk_size = 20
 split_overlap = 0
 
 
@@ -49,7 +49,7 @@ def index(arg_prompt: str, content: str):
     クエリ文字列としてプロンプトを受取、文章に分割し、それぞれに対してプロンプトを実行し、統合プロンプトを返す
     '''
     if len(content) > split_chunk_size:
-        dataset = SummarizationDataset(prompt=arg_prompt, origin_text=content)
+        dataset = SummarizationDataset(prompt=arg_prompt, origin_text=content, split_info=SplitInfo(split_chunk_size, split_overlap))
         split_texts = TextSplitter.split(content, 
                                          chunk_size=split_chunk_size, 
                                          chunk_overlap=split_overlap)
