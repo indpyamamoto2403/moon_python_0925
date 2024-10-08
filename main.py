@@ -94,12 +94,6 @@ def index(keyword):
     url = search_bot.get_search_url_by_keyword(keyword)
     return url
 
-@app.get("/vector_search/{keyword}")
-def index(keyword):
-    answer = "ここにベクトル検索の結果が入ります。"
-    return answer
-
-
 @app.get("/news")
 def index(page_num : int = Query(3), keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
     '''
@@ -140,47 +134,6 @@ def index(page_num : int = Query(3), keyword1: str = Query(None),  keyword2: str
     except Exception as e:
             return {"API error": str(e)}
 
-
-@app.get("/news_search")
-def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
-    
-    '''
-    ニュース検索APIを利用して、ニュース記事を要約する
-    引数の説明:
-    page: 検索するページ数
-    keyword1: 検索キーワード1
-    keyword2: 検索キーワード2
-    keyword3: 検索キーワード3
-    '''
-    
-    const_prompt = "次のニュース記事を要約してください"
-    
-    try:
-        news : NewsSearchResult = NewsSearchResult(keyword1=keyword1, keyword2=keyword2, keyword3=keyword3, search_num=page, search_result=[])
-        if not news.get_search_result():
-            return {"error": "少なくとも1つのキーワードを指定してください。"}
-        urls = search_bot.get_search_urls_by_keyword(news.search_word, page)
-        
-
-        for (rank , url) in enumerate(urls):
-            
-            #rank(順位)とurlをセット, 
-            search_result = SearchResult(rank=rank, 
-                                         url=url, 
-                                         summary=None) #summaryは後でセットする
-            
-            text_content = parser.fetch_content_from_url(url)
-            search_results = prompt.summarize_news(text_content)
-            # 辞書に各項目を追加
-            summary_dataset = SummarizationDataset(prompt=const_prompt, origin_text=text_content, split_info=SplitInfo(split_chunk_size, split_overlap))
-            content['text_content'] = text_content
-            content['search_results'] = search_results    
-            rank += 1
-            contents.append(content)
-        return {"keywords": [keyword1, keyword2, keyword3], "url": urls, "news": contents}
-    except Exception as e:
-            return {"API error": str(e)}
-    
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
     #uvicorn main:app --host 0.0.0.0 --port 5000 --reload
