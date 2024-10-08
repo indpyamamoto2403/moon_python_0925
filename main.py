@@ -8,9 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests
 from dotenv import load_dotenv
 import uvicorn
-
+from ResponseGetter import ResponseGetter
 from URLQuery import URLQuery
-from dataset import NewsSearchResult, SearchResult, SummarizationDataset, Chunk, SplitInfo
+from dataset import *
 
 
 load_dotenv()
@@ -23,12 +23,13 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-prompt = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
+split_chunk_size = 4000
+split_overlap = 0
+
+prompt_getter = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
 search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
-
-split_chunk_size = 20
-split_overlap = 0
+response_getter = ResponseGetter(prompt_getter, split_chunk_size, split_overlap)
 
 
 @app.get("/")
@@ -40,7 +41,7 @@ def index(question: str):
     """
     これには、質問を受け取り、回答を返すエンドポイントが含まれます。
     """
-    answer = prompt._question_answer(question)
+    answer = prompt_getter._question_answer(question)
     return (question, answer)
 
 @app.get("/question_answer_by_split")
@@ -48,23 +49,8 @@ def index(arg_prompt: str, content: str):
     '''
     クエリ文字列としてプロンプトを受取、文章に分割し、それぞれに対してプロンプトを実行し、統合プロンプトを返す
     '''
-    if len(content) > split_chunk_size:
-        dataset = SummarizationDataset(prompt=arg_prompt, origin_text=content, split_info=SplitInfo(split_chunk_size, split_overlap))
-        split_texts = TextSplitter.split(content, 
-                                         chunk_size=split_chunk_size, 
-                                         chunk_overlap=split_overlap)
-        for index, chunk in enumerate(split_texts['chunks']):
-            summary = prompt._question_answer(arg_prompt + chunk['text'])
-            dataset.ChunkSet.append(Chunk(index=index, chunk=chunk['text'], summary=summary))
-        
-        #統合コンテンツをセット
-        dataset.set_integration_content()
-        dataset.integration_summary = prompt._question_answer(arg_prompt + dataset.integration_content)
-    else:
-        #分割する必要がない場合は、文字列が返る
-         dataset = prompt._question_answer(arg_prompt + content)
-                
-    return dataset
+    result: SummarizationDataset = response_getter.get_summary_by_prompt_content(arg_prompt, content)
+    return result
 
 @app.post("/url_content")
 def index(url_query: URLQuery):
@@ -81,7 +67,7 @@ def index(url_query: URLQuery):
     これには、URLを受け取り、回答を返すエンドポイントが含まれます。
     """
     url_path = url_query.url_path
-    answer = prompt.get_answer_by_url(url_path)
+    answer = prompt_getter.get_answer_by_url(url_path)
     return answer
 
 @app.get("/keyword_query/{keyword}")
@@ -89,7 +75,7 @@ def index(keyword: str):
     """
     これにはキーワードを受け取り、回答を返すエンドポイントが含まれます.
     """
-    answer = prompt.get_answer_by_keyword(keyword)
+    answer = prompt_getter.get_answer_by_keyword(keyword)
     return answer
 
 @app.get("/search/{keyword}")
@@ -100,7 +86,7 @@ def index(keyword: str):
     """
     url = search_bot.get_search_url_by_keyword(keyword)
     text_content = parser.fetch_content_from_url(url)
-    search_results = prompt.summarize_content(text_content)
+    search_results = prompt_getter.summarize_content(text_content)
     return {"keyword": keyword, "url": url, "summary": search_results}
 
 @app.get("/search_url/{keyword}")
@@ -113,35 +99,59 @@ def index(keyword):
     answer = "ここにベクトル検索の結果が入ります。"
     return answer
 
+
 @app.get("/news")
-def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
+def index(page_num : int = Query(3), keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
+    '''
+    ニュース検索APIを利用して、ニュース記事を要約する
+    引数の説明:
+    page: 検索するページ数
+    keyword1: 検索キーワード1
+    keyword2: 検索キーワード2
+    keyword3: 検索キーワード3
+    '''
     
     const_prompt = "次のニュース記事を要約してください"
     
     try:
-        combined_keywords = f"{keyword1 or ''} {keyword2 or ''} {keyword3 or ''} ニュース".strip()
-        if not combined_keywords:
+        
+        #すべてが詰まったオブジェクト。EntireDataset型を受け取る
+        data:EntireDataset = EntireDataset(input_dataset=InputDataset(keyword1=keyword1, keyword2=keyword2, keyword3=keyword3), 
+                                           output_dataset=[])        
+        
+        if data.input_dataset.conbined_keyword == None:
             return {"error": "少なくとも1つのキーワードを指定してください。"}
-        urls = search_bot.get_search_urls_by_keyword(combined_keywords, page)
-        contents = []
-        rank = 1
-        for url in urls:
-            content = {}
-            text_content = parser.fetch_content_from_url(url)
-            search_results = prompt.summarize_news(text_content)
-            # 辞書に各項目を追加
-            content['rank'] = rank
-            content['url'] = url
-            content['text_content'] = text_content
-            content['search_results'] = search_results    
+        urls = search_bot.get_search_urls_by_keyword(data.input_dataset.conbined_keyword, page_num)
+        for (rank , url) in enumerate(urls):
+            #rank(順位)とurlをセット, 
+            search_result = SearchResult(rank=rank, 
+                                         url=url, 
+                                         summary=None) #summaryは後でセットする 
+            text_content:str = parser.fetch_content_from_url(url)
+            search_result.summary = response_getter.get_summary_by_prompt_content(const_prompt, text_content)
+            #search_result.summary = text_content #MOCK
+            
+            #結果を格納
+            data.output_dataset.append(search_result)
             rank += 1
-            contents.append(content)
-        return {"keywords": [keyword1, keyword2, keyword3], "url": urls, "news": contents}
+            
+        return {"API Succeeded" : True, "data" : data}
+    
     except Exception as e:
             return {"API error": str(e)}
 
+
 @app.get("/news_search")
 def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
+    
+    '''
+    ニュース検索APIを利用して、ニュース記事を要約する
+    引数の説明:
+    page: 検索するページ数
+    keyword1: 検索キーワード1
+    keyword2: 検索キーワード2
+    keyword3: 検索キーワード3
+    '''
     
     const_prompt = "次のニュース記事を要約してください"
     
@@ -173,3 +183,4 @@ def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Q
     
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+    #uvicorn main:app --host 0.0.0.0 --port 5000 --reload

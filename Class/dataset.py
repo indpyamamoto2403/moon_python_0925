@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Dict
+from typing import Any, List, Dict
 
 @dataclass
 class Chunk:
@@ -16,10 +16,11 @@ class SplitInfo:
 class SummarizationDataset:
     prompt: str
     origin_text: str
-    split_info: SplitInfo
+    split_info: SplitInfo = None
+    execute_split: bool = False 
     ChunkSet: List[Chunk] = field(default_factory=list)
     integration_content: str = ""
-    integration_summary: str = ""
+    summary: str = ""
     
     def __post_init__(self):
         '''
@@ -39,22 +40,32 @@ class SearchResult:
     url:str
     summary:SummarizationDataset
 
+
 @dataclass
-class NewsSearchResult:
-    keyword1:str
-    keyword2:str
-    keyword3:str
-    search_num:int
-    search_result:List[SearchResult] #URLとその内容を格納する辞書のリスト
+class InputDataset:
+    '''
+    input要素を格納するクラス
+    '''
+    keyword1:str = ""
+    keyword2:str = ""
+    keyword3:str = ""
+    const_search_word:str = "ニュース"
+    
+    conbined_keyword:str = None
     
     def __post_init__(self):
         '''
-        conbinated keywordをセット
+        conbined keywordをセット
+        すべて空文字であればNoneを返す
         '''
-        self.search_word = f"{self.keyword1}  {self.keyword2} {self.keyword3} ニュース"
-    
-    def get_search_result(self):
-        '''
-        search_resultを返す
-        '''
-        return self.search_word
+        self.conbined_keyword = f"{self.keyword1} {self.keyword2} {self.keyword3} {self.const_search_word}"
+        if self.keyword1 == "" and self.keyword2 == "" and self.keyword3 == "":
+            self.conbined_keyword = None
+
+@dataclass
+class EntireDataset:
+    '''
+    インプットしたキーワード等の情報と、URLと要約データセットを格納するクラス
+    '''
+    input_dataset:InputDataset
+    output_dataset: list = field(default_factory=list) #list[SearchResult]を有する

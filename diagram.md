@@ -1,43 +1,44 @@
 classDiagram
-    class Chunk {
-        +int index
-        +str chunk
-        +str summary
+    class InputDataset {
+        str keyword1
+        str keyword2
+        str keyword3
+        str const_search_word
+        str conbined_keyword
     }
-
-    class SplitInfo {
-        +int split_chunk_size
-        +int split_overlap
+    class EntireDataset {
+        InputDataset input_dataset
+        List~SearchResult~ output_dataset
     }
-
-    class SummarizationDataset {
-        +str prompt
-        +str origin_text
-        +SplitInfo split_info
-        +List~Chunk~ ChunkSet
-        +str integration_content
-        +str integration_summary
-        +int origin_text_length
-        +set_integration_content()
-    }
-
     class SearchResult {
-        +int rank
-        +str url
-        +SummarizationDataset summary
+        int rank
+        str url
+        SummarizationDataset summary
+    }
+    class SummarizationDataset {
+        str prompt
+        str origin_text
+        SplitInfo split_info
+        bool execute_split
+        List~Chunk~ ChunkSet
+        str integration_content
+        str summary
+        int origin_text_length
+    }
+    class SplitInfo {
+        int split_chunk_size
+        int split_oqverlap
+    }
+    class Chunk {
+        int index
+        str chunk
+        str summary
     }
 
-    class NewsSearchResult {
-        +str keyword1
-        +str keyword2
-        +str keyword3
-        +int search_num
-        +List~SearchResult~ search_result
-        +str search_word
-        +get_search_result()
-    }
 
-    SummarizationDataset o-- SplitInfo : has
-    SummarizationDataset o-- Chunk : contains
-    SearchResult o-- SummarizationDataset : contains
-    NewsSearchResult o-- SearchResult : contains
+    %% 関係性を定義
+    EntireDataset --> InputDataset : contains
+    EntireDataset --> SearchResult : contains
+    SearchResult --> SummarizationDataset : contains
+    SummarizationDataset --> Chunk : contains
+    SummarizationDataset --> SplitInfo : has
