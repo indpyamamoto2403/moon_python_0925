@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 import uvicorn
 
 from URLQuery import URLQuery
-from dataset import SummarizationDataset, Chunk, SplitInfo
+from dataset import NewsSearchResult, SearchResult, SummarizationDataset, Chunk, SplitInfo
 
 
 load_dotenv()
@@ -115,6 +115,9 @@ def index(keyword):
 
 @app.get("/news")
 def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
+    
+    const_prompt = "次のニュース記事を要約してください"
+    
     try:
         combined_keywords = f"{keyword1 or ''} {keyword2 or ''} {keyword3 or ''} ニュース".strip()
         if not combined_keywords:
@@ -137,5 +140,36 @@ def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Q
     except Exception as e:
             return {"API error": str(e)}
 
+@app.get("/news_search")
+def index(page : int = Query(3), keyword1: str = Query(None),  keyword2: str = Query(None),keyword3: str = Query(None)):
+    
+    const_prompt = "次のニュース記事を要約してください"
+    
+    try:
+        news : NewsSearchResult = NewsSearchResult(keyword1=keyword1, keyword2=keyword2, keyword3=keyword3, search_num=page, search_result=[])
+        if not news.get_search_result():
+            return {"error": "少なくとも1つのキーワードを指定してください。"}
+        urls = search_bot.get_search_urls_by_keyword(news.search_word, page)
+        
+
+        for (rank , url) in enumerate(urls):
+            
+            #rank(順位)とurlをセット, 
+            search_result = SearchResult(rank=rank, 
+                                         url=url, 
+                                         summary=None) #summaryは後でセットする
+            
+            text_content = parser.fetch_content_from_url(url)
+            search_results = prompt.summarize_news(text_content)
+            # 辞書に各項目を追加
+            summary_dataset = SummarizationDataset(prompt=const_prompt, origin_text=text_content, split_info=SplitInfo(split_chunk_size, split_overlap))
+            content['text_content'] = text_content
+            content['search_results'] = search_results    
+            rank += 1
+            contents.append(content)
+        return {"keywords": [keyword1, keyword2, keyword3], "url": urls, "news": contents}
+    except Exception as e:
+            return {"API error": str(e)}
+    
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

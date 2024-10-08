@@ -32,4 +32,29 @@ class SummarizationDataset:
         ChunkSetの内容を統合してintegration_contentにセット
         '''
         self.integration_content = ' '.join([chunk.summary for chunk in self.ChunkSet])
+        
+@dataclass
+class SearchResult:
+    rank:int
+    url:str
+    summary:SummarizationDataset
 
+@dataclass
+class NewsSearchResult:
+    keyword1:str
+    keyword2:str
+    keyword3:str
+    search_num:int
+    search_result:List[SearchResult] #URLとその内容を格納する辞書のリスト
+    
+    def __post_init__(self):
+        '''
+        conbinated keywordをセット
+        '''
+        self.search_word = f"{self.keyword1}  {self.keyword2} {self.keyword3} ニュース"
+    
+    def get_search_result(self):
+        '''
+        search_resultを返す
+        '''
+        return self.search_word
