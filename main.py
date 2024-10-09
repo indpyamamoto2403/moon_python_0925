@@ -24,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-split_chunk_size = 30
+split_chunk_size = 3000
 split_overlap = 0
 
 prompt_getter = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
