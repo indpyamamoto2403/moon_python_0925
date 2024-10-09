@@ -29,7 +29,7 @@ class SummarizationDataset:
     origin_text_length: int = field(init=False) 
     split_info: SplitInfo = None
     execute_split: bool = False 
-    ChunkSet: List[Chunk] = field(default_factory=list)
+    ChunkSet: List[AbstractChunk] = field(default_factory=list)
     integration_content: str = ""
     summary: str = ""
     
