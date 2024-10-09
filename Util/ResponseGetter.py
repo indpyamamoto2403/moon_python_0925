@@ -58,7 +58,6 @@ class RagResponseGetter(ResponseGetter):
     def get_summary_by_rag(self, arg_prompt:str, content:str):
         
         vector_query = self.embedding_processor.generate_embedding(arg_prompt)
-        print(vector_query[0:10])
         dataset = SummarizationDataset(prompt=arg_prompt, origin_text=content, split_info=SplitInfo(self.split_chunk_size, self.split_overlap))
         if len(content) > self.split_chunk_size:
             split_texts = TextSplitter.split(content, 
