@@ -6,12 +6,13 @@ from html_parser import HTMLParser
 from utils import TextSplitter
 from fastapi.middleware.cors import CORSMiddleware
 import requests
+from get_vector import EmbeddingProcessor
 from dotenv import load_dotenv
 import uvicorn
-from ResponseGetter import ResponseGetter
+from ResponseGetter import ResponseGetter, RagResponseGetter
 from URLQuery import URLQuery
 from dataset import *
-
+from openai import AzureOpenAI
 
 load_dotenv()
 app = FastAPI()
@@ -23,13 +24,23 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-split_chunk_size = 4000
+split_chunk_size = 30
 split_overlap = 0
 
 prompt_getter = GetPrompt(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
 search_bot = SearchPage(subscription_key = os.getenv("SUBSCRIPTION_KEY") , search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 parser = HTMLParser()
+
+#ベクトル化に関するクライアントを初期化
+embedding_client = AzureOpenAI(
+            api_key=os.getenv('EMBEDDING_API_KEY'),  
+            api_version="2024-06-01",
+            azure_endpoint=os.getenv('EMBEDDING_ENDPOINT'), )
+embedding_processor = EmbeddingProcessor(embedding_client)
+
+
 response_getter = ResponseGetter(prompt_getter, split_chunk_size, split_overlap)
+rag_response_getter = RagResponseGetter(prompt_getter, split_chunk_size, split_overlap, embedding_processor)
 
 
 @app.get("/")
@@ -50,6 +61,15 @@ def index(arg_prompt: str, content: str):
     クエリ文字列としてプロンプトを受取、文章に分割し、それぞれに対してプロンプトを実行し、統合プロンプトを返す
     '''
     result: SummarizationDataset = response_getter.get_summary_by_prompt_content(arg_prompt, content)
+    return result
+
+@app.get("/question_answer_by_rag")
+def index(arg_prompt: str, content: str):
+    '''
+    クエリ文字列としてプロンプトを受取、文章に分割し、それぞれに対してベクトル化を行い、コサイン類似度の高い文章を選択し
+    統合分を返す
+    '''
+    result: SummarizationDataset = rag_response_getter.get_summary_by_rag(arg_prompt, content)
     return result
 
 @app.post("/url_content")
@@ -104,15 +124,11 @@ def index(page_num : int = Query(3), keyword1: str = Query(None),  keyword2: str
     keyword2: 検索キーワード2
     keyword3: 検索キーワード3
     '''
-    
     const_prompt = "次のニュース記事を要約してください"
-    
     try:
-        
         #すべてが詰まったオブジェクト。EntireDataset型を受け取る
         data:EntireDataset = EntireDataset(input_dataset=InputDataset(keyword1=keyword1, keyword2=keyword2, keyword3=keyword3), 
                                            output_dataset=[])        
-        
         if data.input_dataset.conbined_keyword == None:
             return {"error": "少なくとも1つのキーワードを指定してください。"}
         urls = search_bot.get_search_urls_by_keyword(data.input_dataset.conbined_keyword, page_num)

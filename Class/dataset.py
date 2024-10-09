@@ -1,11 +1,21 @@
 from dataclasses import dataclass, field
 from typing import Any, List, Dict
+from abc import ABC, abstractmethod
 
+
+# 抽象基底クラス
 @dataclass
-class Chunk:
+class AbstractChunk:
     index: int
     chunk: str
+
+@dataclass
+class Chunk(AbstractChunk):
     summary: str
+
+@dataclass
+class RaggedChunk(AbstractChunk):
+    cosine_similarity: str
 
 @dataclass
 class SplitInfo:
@@ -16,6 +26,7 @@ class SplitInfo:
 class SummarizationDataset:
     prompt: str
     origin_text: str
+    origin_text_length: int = field(init=False) 
     split_info: SplitInfo = None
     execute_split: bool = False 
     ChunkSet: List[Chunk] = field(default_factory=list)
