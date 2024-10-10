@@ -6,6 +6,7 @@ from html_parser import HTMLParser
 from utils import TextSplitter
 from fastapi.middleware.cors import CORSMiddleware
 import requests
+from image_responder import ImageResponder
 from get_vector import EmbeddingProcessor
 from dotenv import load_dotenv
 import uvicorn
@@ -42,10 +43,15 @@ embedding_processor = EmbeddingProcessor(embedding_client)
 response_getter = ResponseGetter(prompt_getter, split_chunk_size, split_overlap)
 rag_response_getter = RagResponseGetter(prompt_getter, split_chunk_size, split_overlap, embedding_processor)
 
+image_responder = ImageResponder(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
 
 @app.get("/")
 def read_root():
     return {"Hello": "AI FastAPI World"}
+
+@app.post("/")
+def index(val:str):
+    return {"Hello": val}
 
 @app.get("/question/{question}")
 def index(question: str):
@@ -54,6 +60,15 @@ def index(question: str):
     """
     answer = prompt_getter._question_answer(question)
     return (question, answer)
+
+@app.post("/question")
+def index(question: str):
+    """
+    これには、質問を受け取り、回答を返すエンドポイントが含まれます。
+    """
+    answer = prompt_getter._question_answer(question)
+    return {"question": question, "answer": answer}
+
 
 @app.get("/question_answer_by_split")
 def index(arg_prompt: str, content: str):
@@ -68,7 +83,9 @@ def index(prompt: str, encoded_image: str):
     """
     これには、エンコードされた画像を受け取り、回答を返すエンドポイントが含まれます。
     """
-    answer = prompt_getter._question_answer_by_image(prompt, encoded_image)
+    answer = image_responder._question_answer(prompt, encoded_image)
+    print(answer)
+    print(type(answer))
     return answer
 
 @app.get("/question_answer_by_rag")
@@ -81,12 +98,11 @@ def index(arg_prompt: str, content: str):
     return result
 
 @app.post("/url_content")
-def index(url_query: URLQuery):
+def index(url: str):
     """
     これには、URLを受け取り、URL本文を返すエンドポイントが含まれます。
     """
-    url_path = url_query.url_path
-    text_content = parser.fetch_content_from_url(url_path)
+    text_content = parser.fetch_content_from_url(url)
     return text_content
 
 @app.post("/url_query")
