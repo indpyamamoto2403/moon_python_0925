@@ -63,6 +63,14 @@ def index(arg_prompt: str, content: str):
     result: SummarizationDataset = response_getter.get_summary_by_prompt_content(arg_prompt, content)
     return result
 
+@app.post("/question_answer_by_image")
+def index(prompt: str, encoded_image: str):
+    """
+    これには、エンコードされた画像を受け取り、回答を返すエンドポイントが含まれます。
+    """
+    answer = prompt_getter._question_answer_by_image(prompt, encoded_image)
+    return answer
+
 @app.get("/question_answer_by_rag")
 def index(arg_prompt: str, content: str):
     '''

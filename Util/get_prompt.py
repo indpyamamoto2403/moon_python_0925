@@ -115,3 +115,4 @@ class GetPrompt:
         answer = self._question_answer(prompt)
         
         return {"prefix": prefix, "summary": answer}
+    
