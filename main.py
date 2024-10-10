@@ -144,7 +144,6 @@ def index(page_num : int = Query(3), keyword1: str = Query(None),  keyword2: str
             #結果を格納
             data.output_dataset.append(search_result)
             rank += 1
-            
         return {"API Succeeded" : True, "data" : data}
     
     except Exception as e:
