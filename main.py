@@ -84,8 +84,10 @@ def index(prompt: str, encoded_image: str):
     これには、エンコードされた画像を受け取り、回答を返すエンドポイントが含まれます。
     """
     answer = image_responder._question_answer(prompt, encoded_image)
+    #```json やら```やら改行文字やらスラッシュ、半角スペース、全角スペース、バックスラッシュなどをトリムしたい
+    answer = answer.replace("```json\n", "").replace("```", "")
+    #.replace("\n", "").replace("\\", "").replace(" ", "").replace("　", "").replace("\u3000", "")
     print(answer)
-    print(type(answer))
     return answer
 
 @app.get("/question_answer_by_rag")
@@ -108,18 +110,18 @@ def index(url: str):
 @app.post("/url_query")
 def index(url_query: URLQuery):
     """
-    これには、URLを受け取り、回答を返すエンドポイントが含まれます。
+    これには、URLを受け取り、回答(事業内容の要約）を返すエンドポイントが含まれます。
     """
     url_path = url_query.url_path
     answer = prompt_getter.get_answer_by_url(url_path)
     return answer
 
-@app.get("/keyword_query/{keyword}")
-def index(keyword: str):
+@app.get("/keyword_query")
+def index(keyword: str, prompt:str):
     """
-    これにはキーワードを受け取り、回答を返すエンドポイントが含まれます.
+    これにはクエリ文字列としてキーワードを受け取り、回答(事業内容の要約)を返すエンドポイントが含まれます.
     """
-    answer = prompt_getter.get_answer_by_keyword(keyword)
+    answer = prompt_getter.get_answer_by_keyword(keyword, prompt)
     return answer
 
 @app.get("/search/{keyword}")

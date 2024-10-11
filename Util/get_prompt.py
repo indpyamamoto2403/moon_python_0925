@@ -85,16 +85,14 @@ class GetPrompt:
         
         return {"url_path": url_path, "qestion": question, "answer": answer}
 
-    def get_answer_by_keyword(self, keyword: str) -> str:
+    def get_answer_by_keyword(self, keyword: str, arg_prompt:str) -> str:
         '''
         キーワードとクエリを受取、生成AIが処理し、結果を返す
         '''
-        
-        question = "次のキーワードについて、事業内容を教えてください。"
-        prompt = question + keyword
+        prompt = arg_prompt + keyword
         answer = self._question_answer(prompt)
         
-        return {"keyword": keyword, "question": question, "answer": answer}
+        return {"keyword": keyword, "question": arg_prompt, "answer": answer}
     
     
     def summarize_content(self, content:str) -> str:
