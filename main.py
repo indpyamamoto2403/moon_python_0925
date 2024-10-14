@@ -108,12 +108,11 @@ def index(url: str):
     return text_content
 
 @app.post("/url_query")
-def index(url_query: URLQuery):
+def index(url: str, prompt:str):
     """
     これには、URLを受け取り、回答(事業内容の要約）を返すエンドポイントが含まれます。
     """
-    url_path = url_query.url_path
-    answer = prompt_getter.get_answer_by_url(url_path)
+    answer = prompt_getter.get_answer_by_url(url, prompt)
     return answer
 
 @app.get("/keyword_query")
@@ -176,5 +175,7 @@ def index(page_num : int = Query(3), keyword1: str = Query(None),  keyword2: str
             return {"API error": str(e)}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)
     #uvicorn main:app --host 0.0.0.0 --port 5000 --reload
+    
+    

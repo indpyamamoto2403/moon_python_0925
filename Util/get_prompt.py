@@ -74,20 +74,19 @@ class GetPrompt:
         '''
         return ["sentence1", "sentence2", "sentence3", "sentence4", "sentence5"]
     
-    def get_answer_by_url(self, url_path: str) -> str:
+    def get_answer_by_url(self, url_path: str, arg_prompt:str) -> str:
         '''
         URLとクエリを受取、生成AIが処理し、結果を返す
         '''
-        question = "次の文章を参考に、事業内容を要約してください。"
         content = self.parser.fetch_content_from_url(url_path)
-        prompt = question + content
+        prompt = arg_prompt + content
         answer = self._question_answer(prompt)
         
-        return {"url_path": url_path, "qestion": question, "answer": answer}
+        return {"url_path": url_path, "content": content, "qestion": arg_prompt, "answer": answer}
 
     def get_answer_by_keyword(self, keyword: str, arg_prompt:str) -> str:
         '''
-        キーワードとクエリを受取、生成AIが処理し、結果を返す
+        キーワードとクエリを受取、生成AIが処理し、結果を返す。
         '''
         prompt = arg_prompt + keyword
         answer = self._question_answer(prompt)
