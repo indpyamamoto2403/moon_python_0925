@@ -1,6 +1,6 @@
 import requests
 from env import * 
-from html_parser import HTMLParser
+from HTMLparser import HTMLParser
 
 class GetJigyonaiyo:
     def __init__(self, api_key:str, endpoint:str) -> None:

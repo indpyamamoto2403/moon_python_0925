@@ -1,13 +1,12 @@
 import requests
 import os
-import json
 import base64
 from HTMLparser import HTMLParser
 from utils import TextSplitter
 from dotenv import load_dotenv
 load_dotenv()
 
-class ImageResponder:
+class OpenAIImageRespondRepository:
     def __init__(self, api_key: str, endpoint: str) -> None:
         self.api_key = api_key
         self.endpoint = endpoint
@@ -36,9 +35,9 @@ class ImageResponder:
                     ]
                 }
             ],
-            "temperature": 0.7,
+            "temperature": 0.1,
             "top_p": 0.95,
-            "max_tokens": 2000
+            "max_tokens": 3000
         }
 
         try:
@@ -52,7 +51,7 @@ class ImageResponder:
         return answer
 
 if __name__ == "__main__":
-    image_responder = ImageResponder(api_key=os.getenv("API_KEY"), endpoint=os.getenv("ENDPOINT"))
+    image_responder = OpenAIImageRespondRepository(api_key=os.getenv("API_KEY"), endpoint=os.getenv("ENDPOINT"))
     
     #同階層のsample.jpgをbase64エンコード
     with open("sample2.png", "rb") as image_file:

@@ -1,7 +1,7 @@
 import requests
 import json
 import base64
-from html_parser import HTMLParser
+from HTMLparser import HTMLParser
 from utils import TextSplitter
 
 class GetPrompt:

@@ -2,7 +2,7 @@ import pytest
 import requests
 from bs4 import BeautifulSoup
 from unittest.mock import patch, MagicMock
-from html_parser import HTMLParser
+from HTMLparser import HTMLParser
 from utils import TextSplitter
 from pprint import pprint
 from dataset import SummarizationDataset, Chunk

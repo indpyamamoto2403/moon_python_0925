@@ -1,11 +1,9 @@
-import os
+
 from fastapi import FastAPI, Query, Path
 from get_prompt import GetPrompt
 from search_page import SearchPage
-from html_parser import HTMLParser
-from utils import TextSplitter
+from HTMLparser import HTMLParser
 from fastapi.middleware.cors import CORSMiddleware
-import requests
 from image_responder import ImageResponder
 from get_vector import EmbeddingProcessor
 from dotenv import load_dotenv
@@ -48,10 +46,6 @@ image_responder = ImageResponder(api_key = os.getenv("API_KEY"), endpoint = os.g
 @app.get("/")
 def read_root():
     return {"Hello": "AI FastAPI World"}
-
-@app.post("/")
-def index(val:str):
-    return {"Hello": val}
 
 @app.get("/question/{question}")
 def index(question: str):
@@ -175,7 +169,7 @@ def index(page_num : int = Query(3), keyword1: str = Query(None),  keyword2: str
             return {"API error": str(e)}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
     #uvicorn main:app --host 0.0.0.0 --port 5000 --reload
     
     

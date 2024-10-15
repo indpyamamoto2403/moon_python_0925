@@ -1,6 +1,17 @@
 
 class SerachResult:
+    '''
+    検索結果のURLを格納するDataTransferObject
+    url: 検索結果のURL
+    originText: 検索結果のテキスト
+    summary: 要約されたテキスト
+    split_num: 分割数
+    split_method: 分割方法
+    split_text: 分割されたテキスト
+    
+    '''
     def __init__(self, url:str, originText:str, summary:str, split_num:int = 0, split_method:str = "normal", split_text:list[str] = "", ):
+        
         self.url:str = url
         self.originText:str = originText
         self.summary:str = summary
