@@ -12,6 +12,10 @@ class Trimmer:
     def trim_all(text: str):
         return Trimmer.trim_spaces(text), Trimmer.trim_lines(text)
     
+    @staticmethod
+    def clean_json(text: str):
+        return text.replace("```json\n", "").replace("```", "")
+    
 
 class TextSplitter:
     @staticmethod

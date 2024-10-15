@@ -22,4 +22,5 @@ class SummarizationDataset:
         '''
         ChunkSetの内容を統合してintegration_contentにセット
         '''
+        self.execute_split = True
         self.integration_content = ' '.join([chunk.summary for chunk in self.ChunkSet])

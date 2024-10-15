@@ -16,7 +16,7 @@ class OpenAIImageRespondRepository:
             "api-key": self.api_key,
         }
 
-    def _question_answer(self, prompt:str, encoded_image: str) -> str:
+    def fetch_answer(self, prompt:str, encoded_image: str) -> str:
         '''
         Internal method to process a question and get an answer using AI for the provided image.
         '''
@@ -56,4 +56,4 @@ if __name__ == "__main__":
     #同階層のsample.jpgをbase64エンコード
     with open("sample2.png", "rb") as image_file:
         encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
-    answer = image_responder._question_answer(encoded_image)
+    answer = image_responder.fetch_answer(encoded_image)

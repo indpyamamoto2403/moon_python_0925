@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-class SearchPage:
+class BingNewsRepository:
     def __init__(self, subscription_key: str, search_endpoint: str):
         
         self.subscription_key = subscription_key
@@ -67,7 +67,7 @@ class SearchPage:
 #テスト
 if __name__ == "__main__":
     from env import * # 環境変数を読み込む
-    seach_page = SearchPage(subscription_key = os.getenv('SUBSCRIPTION_KEY'), search_endpoint = os.getenv('SEARCH_ENDPOINT'))
+    seach_page = BingNewsRepository(subscription_key = os.getenv('SUBSCRIPTION_KEY'), search_endpoint = os.getenv('SEARCH_ENDPOINT'))
     result_url = seach_page.fetch_url_by_keyword("VueJS")
     print(result_url)
     result_urls = seach_page.fetch_urls_by_keyword("VueJS")
