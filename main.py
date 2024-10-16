@@ -42,6 +42,7 @@ def index(prompt: str, encoded_image: str):
     これには、エンコードされた画像を受け取り、回答を返すエンドポイントが含まれます。
     """
     answer = openai_image_responder.fetch_answer(prompt, encoded_image)
+    print(answer)
     return answer
 
 @app.post("/url_query")

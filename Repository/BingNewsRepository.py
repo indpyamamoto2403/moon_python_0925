@@ -70,5 +70,5 @@ if __name__ == "__main__":
     seach_page = BingNewsRepository(subscription_key = os.getenv('SUBSCRIPTION_KEY'), search_endpoint = os.getenv('SEARCH_ENDPOINT'))
     result_url = seach_page.fetch_url_by_keyword("VueJS")
     print(result_url)
-    result_urls = seach_page.fetch_urls_by_keyword("VueJS")
+    result_urls = seach_page.fetch_urls_by_keyword("Python", url_num=10)
     print(result_urls)
