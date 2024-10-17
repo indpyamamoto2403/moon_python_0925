@@ -10,6 +10,7 @@ from BussinesContentExtractService import BusinessContentExtractService
 from OpenAIRespondService import OpenAIRespondService
 from OpenAIImageRespondService import OpenAIImageRespondService
 from BingNewsService import BingNewsService
+from GetClusterService import GetClusterService
 
 load_dotenv()
 
@@ -29,6 +30,7 @@ business_extractor = BusinessContentExtractService(api_key = os.getenv("API_KEY"
 
 openai_responder = OpenAIRespondService(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
 openai_image_responder = OpenAIImageRespondService(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
+cluster = GetClusterService(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
 bing_news = BingNewsService(subscription_key = os.getenv("SUBSCRIPTION_KEY"), search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 
 @app.get("/")
@@ -62,6 +64,16 @@ def index(keyword: str, prompt:str):
     """
     answer = business_extractor.get_business_content_by_keyword(keyword, prompt)
     return answer
+
+@app.post("/get_cluster")
+def index(sentence: str):
+    """
+    sentenceを基にクラスター情報をJSON形式で返すエンドポイント
+    プロンプトはサービスクラス内に埋め込まれている。
+    """
+    answer = cluster.fetch_answer(sentence)
+    return answer
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
