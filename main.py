@@ -74,6 +74,14 @@ def index(sentence: str):
     answer = cluster.fetch_answer(sentence)
     return answer
 
+@app.post("/get_news")
+def index(keyword1:str, keyword2:str, keyword3:str):
+    """
+    キーワードを受け取り、ニュースを返すエンドポイント
+    """
+    answer = bing_news.fetch_news(keyword1, keyword2, keyword3)
+    return answer
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -3,7 +3,9 @@ from bs4 import BeautifulSoup
 from utils import Trimmer
 
 class HTMLParser:
-
+    '''
+    htmlを解析するクラス
+    '''
     def fetch_content_from_url(self, url):
         '''
         URLからHTMLを取得し、テキストを抽出して返す
