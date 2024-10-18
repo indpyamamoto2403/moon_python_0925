@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from InputDataset import InputDataset
+from KeywordInputDataset import InputDataset
 @dataclass
 class EntireDataset:
     '''

@@ -1,8 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from SummarizationDataset import SummarizationDataset
 
 @dataclass
 class SearchResult:
-    rank:int
     url:str
+    origin:str
     summary:SummarizationDataset
+    title:str
+    rank: int = field(default=None)  # Noneをデフォルト値として設定

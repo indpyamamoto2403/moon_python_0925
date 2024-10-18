@@ -21,4 +21,6 @@ class InputDataset:
         self.conbined_keyword = f"{self.keyword1} {self.keyword2} {self.keyword3} {self.const_search_word}".replace("None", "").strip()
         if self.keyword1 == "" and self.keyword2 == "" and self.keyword3 == "":
             self.conbined_keyword = " "
-        print(self.conbined_keyword)
+    
+    def get_combined_keyword(self):
+        return self.conbined_keyword

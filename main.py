@@ -11,6 +11,7 @@ from OpenAIRespondService import OpenAIRespondService
 from OpenAIImageRespondService import OpenAIImageRespondService
 from BingNewsService import BingNewsService
 from GetClusterService import GetClusterService
+from FetchNewsByKeywordService import FetchNewsByKeywordService
 
 load_dotenv()
 
@@ -32,6 +33,12 @@ openai_responder = OpenAIRespondService(api_key = os.getenv("API_KEY"), endpoint
 openai_image_responder = OpenAIImageRespondService(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
 cluster = GetClusterService(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
 bing_news = BingNewsService(subscription_key = os.getenv("SUBSCRIPTION_KEY"), search_endpoint = os.getenv("SEARCH_ENDPOINT"))
+fetch_news = FetchNewsByKeywordService(
+    api_key=os.getenv("API_KEY"),
+    endpoint=os.getenv("ENDPOINT"),
+    search_api_key=os.getenv("SUBSCRIPTION_KEY"),
+    search_endpoint=os.getenv("SEARCH_ENDPOINT"))
+
 
 @app.get("/")
 def read_root():
@@ -74,12 +81,12 @@ def index(sentence: str):
     answer = cluster.fetch_answer(sentence)
     return answer
 
-@app.post("/get_news")
-def index(keyword1:str, keyword2:str, keyword3:str):
+@app.post("/fetch_news")
+def index(keyword1:str, keyword2:str, keyword3:str,search_num:int = 2):
     """
     キーワードを受け取り、ニュースを返すエンドポイント
     """
-    answer = bing_news.fetch_news(keyword1, keyword2, keyword3)
+    answer = fetch_news.fetch(keyword1, keyword2, keyword3, search_num)
     return answer
 
 
