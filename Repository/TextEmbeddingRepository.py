@@ -1,5 +1,4 @@
 import os
-from env import * 
 from openai import AzureOpenAI
 import numpy as np
 from dotenv import load_dotenv

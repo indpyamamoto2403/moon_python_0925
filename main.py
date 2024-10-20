@@ -9,7 +9,6 @@ import os
 from OpenAIRespondRepository import OpenAIRespondRepository
 from OpenAIImageRespondRepository import OpenAIImageRespondRepository
 from BingNewsRepository import BingNewsRepository
-from TextEmbeddingRepository import TextEmbeddingRepository
 
 #service
 from BussinesContentExtractService import BusinessContentExtractService
@@ -94,6 +93,7 @@ def index(keyword1:str, keyword2:str, keyword3:str,search_num:int = 2):
     search_num: 検索数
     """
     answer = fetch_news.fetch(keyword1, keyword2, keyword3, search_num)
+    print(answer)
     return answer
 
 
