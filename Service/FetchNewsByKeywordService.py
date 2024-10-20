@@ -7,6 +7,8 @@ load_dotenv()
 from utils import TextSplitter, Trimmer
 from HTMLparser import HTMLParser
 #repository
+from OpenAIRepositoryInterface import OpenAIRepositoryInterface
+from BingNewsRepositoryInterface import BingNewsRepositoryInterface
 from OpenAIRespondRepository import OpenAIRespondRepository
 from BingNewsRepository import BingNewsRepository
 #DTO
@@ -18,17 +20,13 @@ from SplitInfo import SplitInfo
 from Chunk import Chunk
 
 class FetchNewsByKeywordService:
-    def __init__(self, api_key, endpoint, search_api_key, search_endpoint):
+    def __init__(self, openai_repository:OpenAIRepositoryInterface, news_repository:BingNewsRepositoryInterface):
         self.const_keyword = "ニュース"
         self.summary_prompt = "次のニュース原文を200字程度で要約してください。　"
         self.make_title_prompt = "次のニュース原文を読んで、30字程度でタイトルをつけてください。　"
-        self.api_key = api_key
-        self.endpoint = endpoint
-        self.search_api_key = search_api_key
-        self.search_endpoint = search_endpoint
         self.parser = HTMLParser()
-        self.openai_repository = OpenAIRespondRepository(self.api_key, self.endpoint)
-        self.bing_repository = BingNewsRepository(self.search_api_key, self.search_endpoint)
+        self.openai_repository = openai_repository
+        self.bing_repository = news_repository
         self.trimmer = Trimmer()
         self.text_splitter = TextSplitter()
     

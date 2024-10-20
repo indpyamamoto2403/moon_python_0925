@@ -5,6 +5,12 @@ from dotenv import load_dotenv
 import uvicorn
 import os 
 
+#Repository
+from OpenAIRespondRepository import OpenAIRespondRepository
+from OpenAIImageRespondRepository import OpenAIImageRespondRepository
+from BingNewsRepository import BingNewsRepository
+from TextEmbeddingRepository import TextEmbeddingRepository
+
 #service
 from BussinesContentExtractService import BusinessContentExtractService
 from OpenAIRespondService import OpenAIRespondService
@@ -23,21 +29,20 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
 )
-#service
-business_extractor = BusinessContentExtractService(api_key = os.getenv("API_KEY"), 
-                                                   endpoint = os.getenv("ENDPOINT"), 
-                                                   search_api_key = os.getenv("SUBSCRIPTION_KEY"), 
-                                                   search_endpoint = os.getenv("SEARCH_ENDPOINT"))
 
-openai_responder = OpenAIRespondService(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
-openai_image_responder = OpenAIImageRespondService(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
-cluster = GetClusterService(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
-bing_news = BingNewsService(subscription_key = os.getenv("SUBSCRIPTION_KEY"), search_endpoint = os.getenv("SEARCH_ENDPOINT"))
-fetch_news = FetchNewsByKeywordService(
-    api_key=os.getenv("API_KEY"),
-    endpoint=os.getenv("ENDPOINT"),
-    search_api_key=os.getenv("SUBSCRIPTION_KEY"),
-    search_endpoint=os.getenv("SEARCH_ENDPOINT"))
+
+#Repository
+openai_respond_repository = OpenAIRespondRepository(api_key = os.getenv("API_KEY"), endpoint=os.getenv("ENDPOINT"))
+openai_image_respond_repository = OpenAIImageRespondRepository(api_key = os.getenv("API_KEY"), endpoint=os.getenv("ENDPOINT"))
+bing_news_repository = BingNewsRepository(subscription_key = os.getenv("SUBSCRIPTION_KEY"), search_endpoint=os.getenv("SEARCH_ENDPOINT"))
+
+#service
+business_extractor = BusinessContentExtractService(openai_respond_repository, bing_news_repository)
+openai_responder = OpenAIRespondService(openai_respond_repository)
+openai_image_responder = OpenAIImageRespondService(openai_image_respond_repository)
+cluster = GetClusterService(openai_respond_repository)
+bing_news = BingNewsService(bing_news_repository)
+fetch_news = FetchNewsByKeywordService(openai_respond_repository, bing_news_repository)
 
 
 @app.get("/")
@@ -57,7 +62,7 @@ def index(prompt: str, encoded_image: str):
 @app.post("/url_query")
 def index(url: str, prompt:str):
     """
-    これには、URLを受け取り、
+    URLを受け取り、
     回答(事業内容の要約）を返すエンドポイントが含まれます。
     """
     answer = business_extractor.get_business_content_by_url(url, prompt)
@@ -66,8 +71,8 @@ def index(url: str, prompt:str):
 @app.get("/keyword_query")
 def index(keyword: str, prompt:str):
     """
-    これにはクエリ文字列としてキーワードを受け取り
-    、回答(事業内容の要約)を返すエンドポイントが含まれます.
+    クエリ文字列としてキーワードを受け取り,BingAPIで検索を行い
+    得られた全文に対してpromptを作用させ、回答を返すエンドポイントが含まれます.
     """
     answer = business_extractor.get_business_content_by_keyword(keyword, prompt)
     return answer
@@ -84,7 +89,9 @@ def index(sentence: str):
 @app.post("/fetch_news")
 def index(keyword1:str, keyword2:str, keyword3:str,search_num:int = 2):
     """
-    キーワードを受け取り、ニュースを返すエンドポイント
+    キーワードを受け取り、BingAPI経由でニュースを取得するエンドポイント
+    keyword1, keyword2, keyword3: キーワード
+    search_num: 検索数
     """
     answer = fetch_news.fetch(keyword1, keyword2, keyword3, search_num)
     return answer

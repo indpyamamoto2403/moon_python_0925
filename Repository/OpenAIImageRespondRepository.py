@@ -5,8 +5,9 @@ from HTMLparser import HTMLParser
 from utils import TextSplitter
 from dotenv import load_dotenv
 load_dotenv()
+from OpenAIRepositoryInterface import OpenAIRepositoryInterface
 
-class OpenAIImageRespondRepository:
+class OpenAIImageRespondRepository(OpenAIRepositoryInterface):
     def __init__(self, api_key: str, endpoint: str) -> None:
         self.api_key = api_key
         self.endpoint = endpoint

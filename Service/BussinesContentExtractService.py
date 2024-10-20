@@ -2,17 +2,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 #repository
+from OpenAIRepositoryInterface import OpenAIRepositoryInterface
+from BingNewsRepositoryInterface import BingNewsRepositoryInterface
+
 from OpenAIRespondRepository import OpenAIRespondRepository
 from BingNewsRepository import BingNewsRepository
 from HTMLparser import HTMLParser
+
 
 #dto
 from BusinessExtractionData import BusinessExtractionData
 
 class BusinessContentExtractService:
-    def __init__(self, api_key:str, endpoint:str, search_api_key:str, search_endpoint:str):
-        self.repository = OpenAIRespondRepository(api_key, endpoint)
-        self.news_repository = BingNewsRepository(search_api_key, search_endpoint)
+    def __init__(self, openai_repository:OpenAIRepositoryInterface , news_repository:BingNewsRepositoryInterface):
+        self.openai_repository = openai_repository
+        self.news_repository = news_repository
         self.parser = HTMLParser()
     
     def get_business_content_by_url(self, url:str, arg_prompt:str)->str:
@@ -26,7 +30,7 @@ class BusinessContentExtractService:
                                                                prompt=arg_prompt)
         data.content = self.parser.fetch_content_from_url(url)
         question = data.prompt + data.content
-        data.answer = self.repository.fetch_answer(question)
+        data.answer = self.openai_repository.fetch_answer(question)
         return data
         
     
@@ -42,5 +46,5 @@ class BusinessContentExtractService:
         data.url = self.news_repository.fetch_url_by_keyword(keyword)
         data.content = self.parser.fetch_content_from_url(data.url)
         question = data.prompt + data.content
-        data.answer = self.repository.fetch_answer(question)
+        data.answer = self.openai_repository.fetch_answer(question)
         return data

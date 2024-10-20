@@ -7,18 +7,15 @@ from utils import TextSplitter, Trimmer
 
 #repository
 from OpenAIRespondRepository import OpenAIRespondRepository
-
+from OpenAIRepositoryInterface import OpenAIRepositoryInterface
 #DTO
 from SummarizationDataset import SummarizationDataset
 from SplitInfo import SplitInfo
 from Chunk import Chunk
 
 class GetClusterService:
-    def __init__(self, api_key, endpoint):
-        self.api_key = api_key
-        self.endpoint = endpoint
-        self.repository = OpenAIRespondRepository(self.api_key, self.endpoint)
-        
+    def __init__(self, repository:OpenAIRepositoryInterface):
+        self.repository:OpenAIRepositoryInterface = repository        
         self.prompt =  """    
         #業種区分
         1.建設・不動産（総合建設業）

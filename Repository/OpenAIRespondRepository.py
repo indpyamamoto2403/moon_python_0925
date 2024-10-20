@@ -2,8 +2,9 @@ import os
 import requests
 from HTMLparser import HTMLParser
 from utils import TextSplitter
+from OpenAIRepositoryInterface import OpenAIRepositoryInterface
 
-class OpenAIRespondRepository:
+class OpenAIRespondRepository(OpenAIRepositoryInterface):
     def __init__(self, api_key:str, endpoint:str) -> None:
         self.api_key = api_key
         self.endpoint = endpoint

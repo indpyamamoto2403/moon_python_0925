@@ -8,17 +8,15 @@ from utils import TextSplitter
 
 #repository
 from OpenAIRespondRepository import OpenAIRespondRepository
-
+from OpenAIRepositoryInterface import OpenAIRepositoryInterface
 #DTO
 from SummarizationDataset import SummarizationDataset
 from SplitInfo import SplitInfo
 from Chunk import Chunk
 
 class OpenAIRespondService:
-    def __init__(self, api_key, endpoint):
-        self.api_key = api_key
-        self.endpoint = endpoint
-        self.repository = OpenAIRespondRepository(self.api_key, self.endpoint)
+    def __init__(self, repository:OpenAIRepositoryInterface):
+        self.repository:OpenAIRepositoryInterface = repository
 
     def fetch_answer(self, prompt):
         response = self.repository.fetch_answer(prompt)
@@ -57,6 +55,7 @@ class OpenAIRespondService:
         return dataset
 
 if __name__ == "__main__":
-    openai_responder = OpenAIRespondService(api_key = os.getenv("API_KEY"), endpoint = os.getenv("ENDPOINT"))
+    repository = OpenAIRespondRepository(api_key=os.getenv("API_KEY"), endpoint=os.getenv("ENDPOINT"))
+    openai_responder = OpenAIRespondService(repository)
     pprint(openai_responder.fetch_answer_by_split("What is the capital of Japan?", "Tokyo is the capital of Japan. Paris is the capital of France. London is the capital of England."))
     

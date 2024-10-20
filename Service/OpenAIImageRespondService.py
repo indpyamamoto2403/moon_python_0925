@@ -5,18 +5,16 @@ load_dotenv()
 
 #Repository
 from OpenAIImageRespondRepository import OpenAIImageRespondRepository
-
+from OpenAIRepositoryInterface import OpenAIRepositoryInterface
 class OpenAIImageRespondService:
-    def __init__(self, api_key, endpoint):
-        self.api_key = api_key
-        self.endpoint = endpoint
-        self.image_responder = OpenAIImageRespondRepository(api_key=self.api_key, endpoint=self.endpoint)
+    def __init__(self, repository:OpenAIRepositoryInterface):
+        self.image_respond_repository = repository
         
     def fetch_answer(self, prompt:str, encoded_image: str) -> str:
         '''
         Internal method to process a question and get an answer using AI for the provided image.
         '''
-        answer = self.image_responder.fetch_answer(prompt, encoded_image)
+        answer = self.image_respond_repository.fetch_answer(prompt, encoded_image)
         #JSON形式に整形
         trimmed_answer = Trimmer.clean_json(answer)
         return trimmed_answer

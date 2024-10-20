@@ -7,12 +7,9 @@ load_dotenv()
 
 class BingNewsRepository:
     def __init__(self, subscription_key: str, search_endpoint: str):
-        
         self.subscription_key = subscription_key
         self.endpoint = search_endpoint
         self.headers = {"Ocp-Apim-Subscription-Key": subscription_key}
-        
-
     
     def _get_params(self, keyword: str):
         '''
