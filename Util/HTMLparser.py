@@ -27,5 +27,5 @@ class HTMLParser:
 if __name__ == "__main__":
     #使用例
     parser = HTMLParser()
-    text_content = parser.fetch_content_from_url('https://www.python.org/')
+    text_content = parser.fetch_content_from_url('https://www.asahi.com/and/pressrelease/425142064/')
     print(text_content)

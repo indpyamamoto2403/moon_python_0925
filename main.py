@@ -85,8 +85,8 @@ def index(sentence: str):
     answer = cluster.fetch_answer(sentence)
     return answer
 
-@app.post("/fetch_news")
-def index(keyword1:str, keyword2:str, keyword3:str,search_num:int = 2):
+@app.get("/fetch_news")
+def index(keyword1:str, keyword2:str="", keyword3:str="",search_num:int = 3):
     """
     キーワードを受け取り、BingAPI経由でニュースを取得するエンドポイント
     keyword1, keyword2, keyword3: キーワード
