@@ -61,9 +61,39 @@ class BingNewsRepository:
         except Exception as e:
             traceback_str = ''.join(traceback.format_tb(e.__traceback__))
             return f"InternalServerError: {str(e)}\nTraceback: {traceback_str}"
-#テスト
+
+
+class MockBingNewsRepository:
+    def __init__(self):
+        # 初期化は必要ないので、何もしません
+        pass
+    
+    def fetch_url_by_keyword(self, keyword: str) -> str:
+        """
+        キーワードによってモックデータを返す
+        """
+        if keyword == "no_results":
+            return "No results found"
+        elif keyword == "error":
+            return "InternalServerError: Simulated error"
+        else:
+            return f"https://example.com/{keyword}"
+    
+    def fetch_urls_by_keyword(self, keyword: str, url_num=3) -> list[str]:
+        """
+        キーワードとurl_numに基づいてモックデータを返す
+        """
+        if keyword == "no_results":
+            return "No results found"
+        elif keyword == "error":
+            return "InternalServerError: Simulated error"
+        else:
+            # モックURLのリストを返す
+            return [f"https://example.com/{keyword}_{i}" for i in range(url_num)]
+
+
+
 if __name__ == "__main__":
-    from env import * # 環境変数を読み込む
     seach_page = BingNewsRepository(subscription_key = os.getenv('SUBSCRIPTION_KEY'), search_endpoint = os.getenv('SEARCH_ENDPOINT'))
     result_url = seach_page.fetch_url_by_keyword("VueJS")
     print(result_url)
