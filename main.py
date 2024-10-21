@@ -96,6 +96,15 @@ def index(keyword1:str, keyword2:str="", keyword3:str="",search_num:int = 3):
     print(answer)
     return answer
 
+@app.post("/fetch_news")
+def index(keyword1:str, keyword2:str="", keyword3:str="",search_num:int = 3):
+    """
+    キーワードを受け取り、BingAPI経由でニュースを取得するエンドポイント
+    keyword1, keyword2, keyword3: キーワード
+    search_num: 検索数
+    """
+    answer = fetch_news.fetch(keyword1, keyword2, keyword3, search_num)
+    return answer
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
